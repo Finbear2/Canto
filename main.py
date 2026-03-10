@@ -1,29 +1,64 @@
+from CONFIG import SETTINGS
+import displayManager
 import identifier
 import threading
+import deezer
 import random
-import web
 import funcs
 import time
 import sql
+import web
 import os
 
 sql.init()
-threading.Thread(target=web.app.run, kwargs={"host": "0.0.0.0", "port": 5000}, daemon=True).start()
+threading.Thread(target=web.app.run, kwargs={"host": SETTINGS["WEB UI"]["host"], "port": SETTINGS["WEB UI"]["port"]}, daemon=True).start()
 
-testing=True
+testing=False
+
+if testing: print("Testing, will not listen only display wepage!");
 
 while True:
     if not testing:
+
         if funcs.hasInternet():
-            print("Syncing offline songs...")
-            for file in os.listdir("offline"):
-                if file.endswith(".wav"):
-                    sql.write(identifier.sync(path=f"offline/{file}"))
-                time.sleep(random.randint(5,7))
-            print("Finished syncing!")
+
+            
+            if len(os.listdir("offline")) > 0:
+                print("Syncing offline songs...")
+
+                displayManager.update(sql.get(6), "Syncing")
+
+                for file in os.listdir("offline"):
+                    if file.endswith(".wav"):
+                        sql.write(identifier.sync(path=f"offline/{file}"))
+                    time.sleep(random.randint(
+                        SETTINGS["IDENTIFIACTION"]["sync inbetween time"],
+                        SETTINGS["IDENTIFIACTION"]["sync inbetween time"]+2)
+                    )
+                print("Finished syncing!")
+
             sql.write(identifier.record())
+
+            if identifier.songPlaying and len(identifier.lastSong) > 0:
+                if displayManager.displayedSong != identifier.lastSong["title"]:
+                    if deezer.getAlbumCover(identifier.lastSong["artist"], identifier.lastSong["title"]):
+
+                        print("Updating screen...")
+                        displayManager.mode = "music"
+                        displayManager.update(sql.get(6), "Idle")
+
+            elif not identifier.songPlaying:
+
+                print("Updating screen...")
+                displayManager.mode = "list"
+                displayManager.update(sql.get(6), "Idle")
+                print("Done!")
         else:
+
             print("Using offline mode as user hasn't got internet!")
             sql.write(identifier.record(internet=False))
+            print("Updating screen...")
+            displayManager.mode = "list"
+            displayManager.update(sql.get(6), "Idle")
 
-    time.sleep(random.randint(50,70))
+    time.sleep(random.randint(SETTINGS["IDENTIFIACTION"]["inbetween time"]-10,SETTINGS["IDENTIFIACTION"]["inbetween time"]+10))

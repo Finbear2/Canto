@@ -1,6 +1,7 @@
+from CONFIG import SETTINGS
 import sqlite3
 
-DB = "songs.db"
+DB = SETTINGS["SQL"]["database path"]
 
 def init():
     con = sqlite3.connect(DB)

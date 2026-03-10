@@ -1,22 +1,27 @@
+from CONFIG import SETTINGS
 from shazam import identify
+import displayManager
 import sounddevice
 import asyncio
 import numpy
 import scipy
 import json
 import time
+import sql
 import os
 
 # --- VARIBLES ---
 
-lastSong = "None"
+lastSong = {}
+songPlaying = False
 
 # Settings
-sampleRate = 44100
-sampleSize = 20 # Sample size in seconds
+sampleRate = SETTINGS["IDENTIFIACTION"]["sample rate"]
+sampleSize = SETTINGS["IDENTIFIACTION"]["sample size"]
 
 def sync(sz:int = sampleSize, sr:int = sampleRate, path:str = "CHANGEME"):
     global lastSong
+    global songPlaying
 
     data =asyncio.run(identify(path=path))
     os.remove(path)
@@ -30,21 +35,32 @@ def sync(sz:int = sampleSize, sr:int = sampleRate, path:str = "CHANGEME"):
         Released: {data["released"]}
         Link: {data["link"]["spotify"]}
         """)
-        if lastSong == data["title"]:
-            print("Song already identified!")
-            return None
+        if len(lastSong) > 0:
+            if lastSong["title"] == data["title"]:
+                print("Song already identified!")
+                songPlaying = True
+                return None
+            else:
+                songPlaying = True
+                lastSong = data
+                return data
         else:
-            lastSong = data["title"]
+            songPlaying = True
+            lastSong = data
             return data
     else:
         print("Sorry, song not found!")
+        songPlaying = False
+        lastSong = {}
         return None
 
 def record(sz:int = sampleSize, sr:int = sampleRate, internet:bool = True):
     global lastSong
+    global songPlaying
 
     # --- RECORD ---
     print("\nRecording...")
+    displayManager.update(sql.get(6), "Listening")
     audioData = sounddevice.rec(
         frames=int(sz*sr),
         samplerate=sr,
@@ -52,13 +68,16 @@ def record(sz:int = sampleSize, sr:int = sampleRate, internet:bool = True):
         dtype="int16"
     )
     sounddevice.wait()
+    
     scipy.io.wavfile.write("temp.wav", sampleRate, audioData)
     print("Saved audio file!")
 
     _, data = scipy.io.wavfile.read("temp.wav")
     print(numpy.abs(data).mean())
-    if numpy.abs(data).mean() < 3500:
+    if numpy.abs(data).mean() < SETTINGS["IDENTIFIACTION"]["noise threshold"]:
         print("Clip too quiet, skipping!")
+        songPlaying = False
+        lastSong = {}
         return None
 
     if internet:
@@ -69,6 +88,7 @@ def record(sz:int = sampleSize, sr:int = sampleRate, internet:bool = True):
         os.remove("temp.wav")
 
         if data:
+            songPlaying = True
             print(f"""
             --- SONG FOUND ---
             Title: {data["title"]}
@@ -77,18 +97,29 @@ def record(sz:int = sampleSize, sr:int = sampleRate, internet:bool = True):
             Released: {data["released"]}
             Link: {data["link"]["spotify"]}
             """)
-            if lastSong == data["title"]:
-                print("Song already identified!")
-                return None
+            if len(lastSong) > 0:
+                if lastSong["title"] == data["title"]:
+                    print("Song already identified!")
+                    songPlaying = True
+                    return None
+                else:
+                    lastSong = data
+                    songPlaying = True
+                    return data
             else:
-                lastSong = data["title"]
+                lastSong = data
+                songPlaying = True
                 return data
         else:
+            songPlaying = False
+            lastSong = {}
             print("Sorry, song not found!")
             return None
 
     else:
+        lastSong = "None"
         filename = f"offline_{int(time.time())}.wav"
         os.rename("temp.wav", f"offline/{filename}")
         print("Offline, song saved to queue!")
+        
         return None
