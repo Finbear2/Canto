@@ -21,7 +21,6 @@ while True:
     if not testing:
 
         if funcs.hasInternet():
-
             
             if len(os.listdir("offline")) > 0:
                 print("Syncing offline songs...")

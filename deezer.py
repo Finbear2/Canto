@@ -13,14 +13,14 @@ def getAlbumCover(artist, song):
 
     print(f"downloading cover '{coverURL}'...")
     try:
-        urllib.request.urlretrieve(coverURL, "recources/cover.png")
+        urllib.request.urlretrieve(coverURL, "resources/cover.png")
         print("Downloaded album cover!")
     except:
         print("Couldn't download album cover!")
         return False;
 
     print("Turning album cover into pixel art image")
-    image = io.imread("recources/cover.png")
+    image = io.imread("resources/cover.png")
 
     pallete = Pal.from_rgb([[255, 255, 255], [0, 0, 0]])
     pyx = Pyx(
@@ -33,7 +33,7 @@ def getAlbumCover(artist, song):
     pyx.fit(image)
 
     newImage = pyx.transform(image)
-    io.imsave("recources/cover.png", newImage)
+    io.imsave("resources/cover.png", newImage)
 
     print("album cover now pixel art!")
     return True;
