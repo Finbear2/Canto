@@ -1,6 +1,6 @@
-/resources/
-/database/
-/_pycache/
+resources/
+database/
+__pycache__/
 
 *.png
 *.wav

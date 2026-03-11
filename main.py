@@ -22,11 +22,18 @@ if testing:
 
 if not testing:
     while True:
+<<<<<<< HEAD
         try:
             if funcs.hasInternet():
                 
                 if len(os.listdir("offline")) > 0:
                     print("Syncing offline songs...")
+=======
+        if funcs.hasInternet():
+            
+            if len(os.listdir("offline")) > 0:
+                print("Syncing offline songs...")
+>>>>>>> be05049a09e4ac40f91b0633756e573363878234
 
                     displayManager.update(sql.get(6), "Syncing")
 
@@ -45,11 +52,17 @@ if not testing:
                     if displayManager.displayedSong != identifier.lastSong["title"]:
                         if deezer.getAlbumCover(identifier.lastSong["artist"], identifier.lastSong["title"]):
 
+<<<<<<< HEAD
                             displayManager.mode = "music"
                             displayManager.update(sql.get(6), "Idle")
+=======
+                        displayManager.mode = "music"
+                        displayManager.update(sql.get(6), "Idle")
+>>>>>>> be05049a09e4ac40f91b0633756e573363878234
 
                 elif not identifier.songPlaying:
 
+<<<<<<< HEAD
                     displayManager.mode = "list"
                     displayManager.update(sql.get(6), "Idle")
 
@@ -66,6 +79,15 @@ if not testing:
         except Exception as e:
             print(e)
             
+=======
+                displayManager.mode = "list"
+                displayManager.update(sql.get(6), "Idle")
+                
+        else:
+
+            print("Using offline mode as user hasn't got internet!")
+            sql.write(identifier.record(internet=False))
+>>>>>>> be05049a09e4ac40f91b0633756e573363878234
             displayManager.mode = "list"
             displayManager.update(sql.get(6), "Idle")
 
