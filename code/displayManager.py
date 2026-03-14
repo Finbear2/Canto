@@ -77,8 +77,7 @@ def displayList(draw:ImageDraw.Draw, songimformation):
 def update(songimformation:dict, status:str):
     print("\nUpdating screen...")
 
-    # swap "omni_epd.mock" for "waveshare_epd.epd2in13_V2" when Pi arrives
-    epd = displayfactory.load_display_driver("omni_epd.mock")
+    epd = displayfactory.load_display_driver("waveshare_epd.epd2in13_V2")
 
     epd.prepare()
 
@@ -100,8 +99,7 @@ def update(songimformation:dict, status:str):
     
 
 if __name__ == "__main__":
-    # swap "omni_epd.mock" for "waveshare_epd.epd2in13_V2" when Pi arrives
-    epd = displayfactory.load_display_driver("omni_epd.mock")
+    epd = displayfactory.load_display_driver("waveshare_epd.epd2in13_V2")
 
     epd.prepare()
 

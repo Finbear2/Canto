@@ -17,6 +17,55 @@ Canto is a little device designed to be ran on harware such as a Pi Zero that us
 
 In it's current stage of development, it is fully coded but stl files for a case and any hardware specific features have not been made. Though, using a mock driver I was able to code a screen though the drivers need changing and maybe certain implementations will need fixing.
 
+## Setup
+
+**Install python 3.11**
+
+Debian:
+
+    sudo apt install software - properties - common
+    sudo add - apt - repository ppa:deadsnakes/ppa
+    sudo apt update
+
+    sudo apt update
+
+
+Arch:
+
+    yay -S python311
+
+---
+
+**Install requirements.txt**
+
+    python3.11 -m pip install -r requirements.txt --break-system-packages
+
+---
+
+**Install nginx and avahi-daemon**
+
+Debian:
+
+    sudo apt install -y avahi-daemon nginx
+    sudo systemctl restart avahi-daemon nginx
+
+Arch:
+
+    sudo pacman -S avahi nginx
+    sudo systemctl restart avahi-daemon nginx
+
+---
+
+**Make it autorun**
+
+    # Change paths
+    sudo nano canto.service
+
+    mv canto.service /etc/systemd/system/
+    sudo systemctl daemon-reload
+    sudo systemctl enable canto
+    sudo systemctl start canto
+
 ## Hardware
 
 This software is ideally ran on a
@@ -25,4 +74,4 @@ This software is ideally ran on a
 - Waveshare 2.13" E-Ink screen (This at the moment cannot be changed)
 - IS2 MEM microphone
 
-Once the software is tested on device, I will provide a linux image that will have everything pre-configured
+Once the software is tested on device, I will provide a linux image that will have everything pre-configured.
