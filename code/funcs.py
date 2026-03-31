@@ -1,4 +1,13 @@
 import requests
+import os
+
+baseDir = os.path.dirname(os.path.abspath(__file__))
+logoPath = os.path.join(baseDir, "resources", "logo.txt")
+
+def logo():
+    with open(logoPath, "r") as f:
+        logoText = f.read()
+    print(logoText)
 
 def hasInternet(url:str = "http://google.com"):
     try:

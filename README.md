@@ -1,13 +1,12 @@
-# Canto
+<h1 style="font-size:50px">Canto</h1>
+
+<img src="resources/logo.png" width="500"/>
 
 Identify every song around you that plays viewable on a Web-UI and on the E-Ink sreen
 
 **This project is in beta and not yet tested on hardware and support is not garunteed!**
 
 @Fin 2026
-
-<img src="resources/Buddy Holly-Weezer.png" width="500"/>
-<img src="resources/Read My Mind-The Killers.png" width="500"/>
 
 ----
 
@@ -16,6 +15,15 @@ Identify every song around you that plays viewable on a Web-UI and on the E-Ink 
 Canto is a little device designed to be ran on harware such as a Pi Zero that uses the ShazamIO python package to identify songs around you then with a 2.13 inch waveshare screen connected, it will display a black and white, pixel art version of the album art using the Deezer API and pyxelate
 
 In it's current stage of development, it is fully coded but stl files for a case and any hardware specific features have not been made. Though, using a mock driver I was able to code a screen though the drivers need changing and maybe certain implementations will need fixing.
+
+----
+
+## Screen Shots
+
+<img src="resources/Buddy Holly-Weezer.png" width="500"/>
+<img src="resources/Read My Mind-The Killers.png" width="500"/>
+
+----
 
 ## Setup
 
@@ -34,13 +42,13 @@ Arch:
 
     yay -S python311
 
----
+----
 
 **Install requirements.txt**
 
     python3.11 -m pip install -r requirements.txt --break-system-packages
 
----
+----
 
 **Install nginx and avahi-daemon**
 
@@ -54,7 +62,7 @@ Arch:
     sudo pacman -S avahi nginx
     sudo systemctl restart avahi-daemon nginx
 
----
+----
 
 **Make it autorun**
 

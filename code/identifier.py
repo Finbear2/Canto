@@ -19,6 +19,9 @@ songPlaying = False
 sampleRate = SETTINGS["IDENTIFIACTION"]["sample rate"]
 sampleSize = SETTINGS["IDENTIFIACTION"]["sample size"]
 
+baseDir = os.path.dirname(os.path.abspath(__file__))
+offlinePath = os.path.join(baseDir, "offline")
+
 def sync(sz:int = sampleSize, sr:int = sampleRate, path:str = "CHANGEME"):
     global lastSong
     global songPlaying
@@ -113,13 +116,12 @@ def record(sz:int = sampleSize, sr:int = sampleRate, internet:bool = True):
         else:
             songPlaying = False
             lastSong = {}
-            print("Sorry, song not found!")
             return None
 
     else:
         lastSong = {}
         filename = f"offline_{int(time.time())}.wav"
-        os.rename("temp.wav", f"offline/{filename}")
+        os.rename("temp.wav", f"{offlinePath}/{filename}")
         print("Offline, song saved to queue!")
         
         return None

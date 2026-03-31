@@ -1,19 +1,35 @@
 from omni_epd import displayfactory
 from PIL import Image, ImageDraw
 from datetime import datetime
+from CONFIG import SETTINGS
 import textwrap
 import socket
 import funcs
+import os
 
 displayedSong = "None"
 mode = "list"
+
+baseDir = os.path.dirname(os.path.abspath(__file__))
+coverPath = os.path.join(baseDir, "resources", "cover.png")
+
+epd = displayfactory.load_display_driver("omni_epd.mock")
+
+def initScreen():
+    global epd
+    epd = displayfactory.load_display_driver(
+        SETTINGS["DISPLAY"]["waveshare drivers"] if SETTINGS["DISPLAY"]["connected"] else "omni_epd.mock"
+    )
+    print("Screen Initialised")
+
+    epd.clear()
 
 def drawTopBar(draw:ImageDraw.Draw, status:str):
     print("Drawing top bar...")
 
     if funcs.hasInternet():
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        s.connect(("8.8.8.8", 80))  # doesn't actually send anything, relax
+        s.connect(("8.8.8.8", 80)) 
         ip = s.getsockname()[0]
         s.close()
 
@@ -51,7 +67,7 @@ def displaySong(draw:ImageDraw.Draw, songimformation:dict, image:Image.new):
     # Mid point is 67.5
     draw.rectangle([(48, 23), (137, 112)], outline=0, width=1, fill=255)
 
-    cover = Image.open("resources/cover.png").convert('1')
+    cover = Image.open(coverPath).convert('1')
     image.paste(cover, (49,24))
 
     print("Finished drawing!")
@@ -77,8 +93,6 @@ def displayList(draw:ImageDraw.Draw, songimformation):
 def update(songimformation:dict, status:str):
     print("\nUpdating screen...")
 
-    epd = displayfactory.load_display_driver("waveshare_epd.epd2in13_V2")
-
     epd.prepare()
 
     image = Image.new("1", (250, 122), 255)
@@ -99,8 +113,6 @@ def update(songimformation:dict, status:str):
     
 
 if __name__ == "__main__":
-    epd = displayfactory.load_display_driver("waveshare_epd.epd2in13_V2")
-
     epd.prepare()
 
     image = Image.new("1", (250, 122), 255)

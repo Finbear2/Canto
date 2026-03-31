@@ -1,8 +1,10 @@
 import urllib.parse, urllib.request
-from pyxelate import Pyx, Pal
-from CONFIG import SETTINGS
-from skimage import io
+from PIL import Image
 import requests
+import os
+
+baseDir = os.path.dirname(os.path.abspath(__file__))
+coverPath = os.path.join(baseDir, "resources", "cover.png")
 
 def getAlbumCover(artist, song):
     print("\ngetting album cover from Deezer API")
@@ -13,30 +15,20 @@ def getAlbumCover(artist, song):
 
     print(f"downloading cover '{coverURL}'...")
     try:
-        urllib.request.urlretrieve(coverURL, "resources/cover.png")
+        urllib.request.urlretrieve(coverURL, coverPath)
         print("Downloaded album cover!")
     except:
         print("Couldn't download album cover!")
-        return False;
+        return False
 
     print("Turning album cover into pixel art image")
-    image = io.imread("resources/cover.png")
+    image = Image.open(coverPath)
 
-    pallete = Pal.from_rgb([[255, 255, 255], [0, 0, 0]])
-    pyx = Pyx(
-        height=SETTINGS["DISPLAY"]["album cover size"],
-        width=SETTINGS["DISPLAY"]["album cover size"],
-        palette=pallete,
-        dither=SETTINGS["DISPLAY"]["album cover dithering type"]
-    )
-
-    pyx.fit(image)
-
-    newImage = pyx.transform(image)
-    io.imsave("resources/cover.png", newImage)
+    small = image.resize((88, 88), Image.NEAREST)
+    small.save(coverPath)
 
     print("album cover now pixel art!")
-    return True;
+    return True
 
 if __name__ == "__main__":
     getAlbumCover("daft punk", "harder better")

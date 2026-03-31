@@ -10,29 +10,39 @@ import sql
 import web
 import os
 
+funcs.logo()
+
 sql.init()
 threading.Thread(target=web.app.run, kwargs={"host": SETTINGS["WEB UI"]["host"], "port": SETTINGS["WEB UI"]["port"]}, daemon=True).start()
 
-testing=False
+baseDir = os.path.dirname(os.path.abspath(__file__))
+offlinePath = os.path.join(baseDir, "offline")
 
-if testing:
+displayManager.initScreen()
+
+time.sleep(20)
+
+if SETTINGS["GENERAL"]["testing"]:
+
     print("Testing, will not listen only display wepage!")
     displayManager.update(sql.get(6), "Testing")
+    while True:
+        pass
 
+else:
 
-if not testing:
     while True:
         try:
             if funcs.hasInternet():
                 
-                if len(os.listdir("offline")) > 0:
+                if len(os.listdir(offlinePath)) > 0:
                     print("Syncing offline songs...")
 
                     displayManager.update(sql.get(6), "Syncing")
 
-                    for file in os.listdir("offline"):
+                    for file in os.listdir(offlinePath):
                         if file.endswith(".wav"):
-                            sql.write(identifier.sync(path=f"offline/{file}"))
+                            sql.write(identifier.sync(path=f"{offlinePath}/{file}"))
                         time.sleep(random.randint(
                             SETTINGS["IDENTIFIACTION"]["sync inbetween time"],
                             SETTINGS["IDENTIFIACTION"]["sync inbetween time"]+2)

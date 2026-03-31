@@ -9,6 +9,7 @@ async def identify(path:str = "temp.wav", raw:bool = False):
     if raw:
         return result
     elif len(result["matches"]) == 0:
+        print("Song not found!")
         return None
     track = result["track"]
     released = 0000
