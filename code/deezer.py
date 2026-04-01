@@ -7,7 +7,7 @@ baseDir = os.path.dirname(os.path.abspath(__file__))
 coverPath = os.path.join(baseDir, "resources", "cover.png")
 
 def getAlbumCover(artist, song):
-    print("\ngetting album cover from Deezer API")
+    print("\nGetting album cover from Deezer API")
     response = requests.get(f"https://api.deezer.com/search?q={urllib.parse.quote(artist + ' ' + song)}").json()
 
     data = response["data"][0]

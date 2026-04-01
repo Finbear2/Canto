@@ -1,50 +1,49 @@
 from CONFIG import SETTINGS
 import sqlite3
+import aiohttp
 
+sqlURL = f"{SETTINGS['GENERAL']['server url']}/sql"
 DB = SETTINGS["SQL"]["database path"]
 
-def init():
-    con = sqlite3.connect(DB)
-    cursor = con.cursor()
+async def init():
+    async with aiohttp.ClientSession() as session:
+        async with session.post(
+            f"{sqlURL}/init",
+            headers={"key": SETTINGS["GENERAL"]["shared secret"]}) as resp:
+            if resp.status not in (200, 204):
+                print(f"\nDatabase Initlization Failed! Error code {resp.status}")
+                return "ERROR"
+            else:
+                print("\nDatabase Initliazed!")
 
-    cursor.execute("""
-        CREATE TABLE IF NOT EXISTS songs (
-            id INTEGER PRIMARY KEY,
-            title TEXT,
-            artist TEXT,
-            album TEXT,
-            shazamLink TEXT,
-            spotifyLink TEXT,
-            starred INTEGER DEFAULT 0,
-            timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
-        )
-    """)
-    con.commit()
-    print("Initialised database!")
+async def get(limit:int = 9):
+    async with aiohttp.ClientSession() as session:
+        async with session.post(
+            f"{sqlURL}/get",
+            headers={
+                "key": SETTINGS["GENERAL"]["shared secret"],
+                "limit": str(limit)
+            }) as resp:
+            if resp.status not in (200, 204):
+                print(f"\nDatabase to get data from database! Error code {resp.status}")
+                return "ERROR"
+            else:
+                result = await resp.json()
+                return result
 
-    con.close()
-
-def get(limit:int = 9):
-    con = sqlite3.connect(DB)
-    con.row_factory = sqlite3.Row
-    cursor = con.cursor()
-    
-    cursor.execute("SELECT * FROM songs ORDER BY timestamp DESC LIMIT ?", (limit,))
-    rows = [dict(row) for row in cursor.fetchall()]
-    con.close()
-    return rows
-
-def write(data):
-    con = sqlite3.connect(DB)
-    cursor = con.cursor()
-
+async def write(data):
     if data:
-        print("\nWriting to database...")
-        cursor.execute("INSERT INTO songs (title, artist, album, shazamLink, spotifyLink) VALUES (?, ?, ?, ?, ?)",
-                (data["title"], data["artist"], data["album"], data["link"]["shazam"], data["link"]["spotify"]))
-        con.commit()
-        print("Saved to database!")
+        async with aiohttp.ClientSession() as session:
+            async with session.post(
+                f"{sqlURL}/write",
+                headers={"key": SETTINGS["GENERAL"]["shared secret"]},
+                json=data) as resp:
+                if resp.status not in (200, 204):
+                    print(f"\nFailed to write to database! Error code {resp.status}")
+                    return "ERROR"
+                else:
+                    result = await resp.json()
+                    return result
     else:
-        print("\nNo data, not writing anything to database!")
-
-    con.close()
+        print("Nothing to write to database!")
+        return "ERROR"

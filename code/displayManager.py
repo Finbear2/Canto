@@ -1,4 +1,3 @@
-from omni_epd import displayfactory
 from PIL import Image, ImageDraw
 from datetime import datetime
 from CONFIG import SETTINGS
@@ -9,22 +8,29 @@ import os
 
 displayedSong = "None"
 mode = "list"
+lastMode = "music"
+refreshes = 0
 
 baseDir = os.path.dirname(os.path.abspath(__file__))
 coverPath = os.path.join(baseDir, "resources", "cover.png")
 
-epd = displayfactory.load_display_driver("omni_epd.mock")
+epd = None
+connected = SETTINGS["DISPLAY"]["connected"]
 
 def initScreen():
+    if not connected: return None;
+
+    from waveshare_epd import epd2in13_V4
+
     global epd
-    epd = displayfactory.load_display_driver(
-        SETTINGS["DISPLAY"]["waveshare drivers"] if SETTINGS["DISPLAY"]["connected"] else "omni_epd.mock"
-    )
+    epd = epd2in13_V4.EPD()
     print("Screen Initialised")
 
-    epd.clear()
+    epd.init()
+    epd.Clear(0xFF)
 
 def drawTopBar(draw:ImageDraw.Draw, status:str):
+    if not connected: return None;
     print("Drawing top bar...")
 
     if funcs.hasInternet():
@@ -44,6 +50,7 @@ def drawTopBar(draw:ImageDraw.Draw, status:str):
     return draw
 
 def displaySong(draw:ImageDraw.Draw, songimformation:dict, image:Image.new):
+    if not connected: return None;
     global displayedSong
 
     print("Drawing song view...")
@@ -52,8 +59,6 @@ def displaySong(draw:ImageDraw.Draw, songimformation:dict, image:Image.new):
     title = topSong["title"]
     artist = topSong["artist"]
     album = topSong["album"]
-
-    displayedSong = title
 
     wrappedTitle = textwrap.fill(title, width=17)
     wrappedArtist = textwrap.fill(artist, width=17)
@@ -74,6 +79,7 @@ def displaySong(draw:ImageDraw.Draw, songimformation:dict, image:Image.new):
     return draw, image
 
 def displayList(draw:ImageDraw.Draw, songimformation):
+    if not connected: return None;
     global displayedSong
     displayedSong = "None"
 
@@ -91,9 +97,8 @@ def displayList(draw:ImageDraw.Draw, songimformation):
     return draw
 
 def update(songimformation:dict, status:str):
+    if not connected: return None;
     print("\nUpdating screen...")
-
-    epd.prepare()
 
     image = Image.new("1", (250, 122), 255)
     draw = ImageDraw.Draw(image)
@@ -107,18 +112,37 @@ def update(songimformation:dict, status:str):
         draw = displayList(draw, songimformation)
 
     print("Pushing image buffer to screen...")
-    epd.display(image)
+
+    refreshes += 1
+    if refreshes == SETTINGS["DISPLAY"]["full refresh counter"]:
+        epd.display(epd.getbuffer(image))
+        refreshes = 0
+    else:
+        if mode == lastMode:
+            if mode == "music":
+                if displayedSong != songimformation[0]["title"]:
+                    epd.display(epd.getbuffer(image))
+                else:
+                    epd.displayPartial(epd.getbuffer(image))
+            else:
+                epd.displayPartial(epd.getbuffer(image))
+        else:
+            epd.display(epd.getbuffer(image))
+
+    lastMode = mode
+    displayedSong = songimformation[0]["title"]
+
     print("Done, screen is updated!\n")
-    epd.close()
+    epd.sleep()
     
 
 if __name__ == "__main__":
-    epd.prepare()
+    initScreen()
 
     image = Image.new("1", (250, 122), 255)
     draw = ImageDraw.Draw(image)
 
     draw = drawTopBar(draw, "Testing")
 
-    epd.display(image)
-    epd.close()
+    epd.display(epd.getbuffer(image))
+    epd.sleep()
