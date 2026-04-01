@@ -7,8 +7,9 @@ import funcs
 import os
 
 displayedSong = "None"
-mode = "list"
-lastMode = "music"
+mode = "music"
+lastMode = "list"
+lastList = {}
 refreshes = 0
 
 baseDir = os.path.dirname(os.path.abspath(__file__))
@@ -100,6 +101,11 @@ def update(songimformation:dict, status:str):
     if not connected: return None;
     print("\nUpdating screen...")
 
+    global refreshes
+    global displayedSong
+    global lastMode
+    global lastList
+
     image = Image.new("1", (250, 122), 255)
     draw = ImageDraw.Draw(image)
     print("New image buffer created!")
@@ -124,12 +130,16 @@ def update(songimformation:dict, status:str):
                     epd.display(epd.getbuffer(image))
                 else:
                     epd.displayPartial(epd.getbuffer(image))
-            else:
-                epd.displayPartial(epd.getbuffer(image))
+            elif mode == "list":
+                if songimformation == lastList:
+                    epd.displayPartial(epd.getbuffer(image))
+                else:
+                    epd.display(epd.getbuffer(image))
         else:
             epd.display(epd.getbuffer(image))
 
     lastMode = mode
+    lastList = songimformation
     displayedSong = songimformation[0]["title"]
 
     print("Done, screen is updated!\n")

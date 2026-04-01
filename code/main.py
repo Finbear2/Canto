@@ -11,12 +11,15 @@ import os
 
 funcs.logo()
 
-asyncio.run(sql.init())
-
 baseDir = os.path.dirname(os.path.abspath(__file__))
 offlinePath = os.path.join(baseDir, "offline")
 
 displayManager.initScreen()
+
+if funcs.hasInternet():
+    asyncio.run(sql.init())
+else:
+    print("No internet, database initialization failed!")
 
 if SETTINGS["GENERAL"]["testing"]:
 
@@ -33,6 +36,8 @@ else:
     while True:
         try:
             if funcs.hasInternet():
+
+                displayManager.mode = "list"
                 
                 if len(os.listdir(offlinePath)) > 0:
                     print("Syncing offline songs...")
@@ -70,19 +75,29 @@ else:
                     displayManager.update(songs, "Idle")
                     
             else:
-
                 print("Using offline mode as user hasn't got internet!")
-                asyncio.run(sql.write(identifier.record(internet=False)))
-                displayManager.mode = "list"
-                songs = asyncio.run(sql.get(6))
-                displayManager.update(songs, "Idle")
+
+                identifier.record(internet=False)
+                if displayManager.mode == "list":
+                    songs = asyncio.run(sql.get(6))
+                    displayManager.update(songs, "Idle")
+                else:
+                    displayManager.mode == "Error"
+                    displayManager.update({}, "Error")
 
         except Exception as e:
             print(e)
             
-            displayManager.mode = "list"
-            songs = asyncio.run(sql.get(6))
-            displayManager.update(songs, "Idle")
+            if funcs.hasInternet():
+                displayManager.mode = "list"
+                songs = asyncio.run(sql.get(6))
+                displayManager.update(songs, "Error")
+            else:
+                if displayManager.mode == "list":
+                    displayManager.update(displayManager.lastList, "Error")
+                else:
+                    displayManager.mode == "Error"
+                    displayManager.update({}, "Error")
 
         sleepTime = random.randint(SETTINGS["IDENTIFIACTION"]["inbetween time"]-10,SETTINGS["IDENTIFIACTION"]["inbetween time"]+10)
 

@@ -63,8 +63,10 @@ def record(sz:int = sampleSize, sr:int = sampleRate, internet:bool = True):
 
     # --- RECORD ---
     print("\nRecording...")
-    songs = asyncio.run(sql.get(6))
-    displayManager.update(songs, "Listening")
+    
+    if internet:
+        displayManager.update(displayManager.displayedSong, "Listening")
+
     audioData = sounddevice.rec(
         frames=int(sz*sr),
         samplerate=sr,
