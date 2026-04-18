@@ -38,6 +38,9 @@ SETTINGS["server"]["shared secret"] = secret
 url = input("Enter url of server, example: http://server_ip:port https://canto.your_domain or whatever you're hosting it as >>> ")
 SETTINGS["server"]["server url"] = url
 
+SETTINGS["display"]["connected"] = True
+SETTINGS["general"]["testing"] = False
+
 # Save config to config.json
 with open(os.path.join(codeDir, "config.json"), "w", encoding="utf-8") as f:
     json.dump(SETTINGS, f, indent=4)

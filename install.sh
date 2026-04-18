@@ -20,4 +20,9 @@ python3 setup.py
 sudo mv canto.service /etc/systemd/system/
 sudo systemctl daemon-reload
 sudo systemctl enable canto.service
-sudo systemctl start canto.service
+
+sudo raspi-config nonint do_spi 0
+sudo usermod -aG spi $USER
+
+echo "Installed, restarting device. Canto will run on all future startups automatically!"
+sudo reboot

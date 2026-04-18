@@ -42,9 +42,19 @@ This is basically a 24/7 shazam that lives inside your pocket.
 
 ## Setup
 
-At the moment I'm still working on this but in the future
+Flash Pi with raspbian os light using pi imager, make sure to configure wifi in advanced settings with a username and password you remember. Also make sure to enable ssh and set it to password authentication
 
+Find the pi's ip address via router web interface or using a tool such as nmap and running
+  nmap -sn 192.168.0.0/24
+and look for something like pi foundation
 
+ssh into the pi's ip address
+  ssh username@ip_address
+
+once in, run this command
+  wget -O - https://raw.githubusercontent.com/Finbear2/Canto/main/install.sh | bash
+
+Answer the questions and wait for reboot. It should display some art on the screen with the last song identified on your server.
 
 
 ## Hardware
