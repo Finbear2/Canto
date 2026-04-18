@@ -3,7 +3,6 @@ Description=Canto
 After=network.target
 
 [Service]
-# Change these!
 ExecStart=/usr/bin/python -u /home/pi/null/code/main.py
 Restart=always
 User=pi

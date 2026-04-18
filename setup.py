@@ -1,25 +1,44 @@
+import getpass
+import json
 import sys
 import os
 
-# [Unit]
-# Description=Canto
-# After=network.target
+codeDir = os.path.dirname(os.path.abspath("code/main.py"))
+baseDir = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(codeDir)
 
-# [Service]
-# # Change these!
-# ExecStart=/usr/bin/python3.11 /path/to/your/script.py
-# Restart=always
-# User=youruser
-# WorkingDirectory=/path/to/your/project/
+from CONFIG import SETTINGS
 
-# [Install]
-# WantedBy=multi-user.target
+Service =f"""
+[Unit]
+Description=Canto
+After=network.target
 
-sys.path.append(os.path.join(os.path.dirname(__file__), "code"))
+[Service]
+ExecStart=/usr/bin/python3 -u {os.path.join(codeDir, "main.py")}
+Restart=always
+User={getpass.getuser()}
+WorkingDirectory={codeDir}
+StandardOutput=journal
+StandardError=journal
 
-from funcs import logo
+[Install]
+WantedBy=multi-user.target"""
 
-logo()
+with open(os.path.join(baseDir, "canto.service"), "w", encoding="utf-8") as f:
+    f.write(Service)
+    print("\nMade canto.service file to be moved to syctemctl location!\n")
 
-# with open("canto.service", "w") as f:
-#     f.write("Test")
+name = input("Enter device name, can be changed later >>> ")
+SETTINGS["general"]["name"] = name
+
+secret = input("Enter the shared secret of your server >>> ")
+SETTINGS["server"]["shared secret"] = secret
+
+url = input("Enter url of server, example: http://server_ip:port https://canto.your_domain or whatever you're hosting it as >>> ")
+SETTINGS["server"]["server url"] = url
+
+# Save config to config.json
+with open(os.path.join(codeDir, "config.json"), "w", encoding="utf-8") as f:
+    json.dump(SETTINGS, f, indent=4)
+    print("\nSaved new config.json!")

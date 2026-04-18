@@ -16,12 +16,12 @@ baseDir = os.path.dirname(os.path.abspath(__file__))
 coverPath = os.path.join(baseDir, "resources", "cover.png")
 
 epd = None
-connected = SETTINGS["DISPLAY"]["connected"]
+connected = SETTINGS["display"]["connected"]
 
 if connected:
     from waveshare_epd import epd2in13_V4
 
-    font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", SETTINGS["DISPLAY"]["font size"])
+    font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", SETTINGS["display"]["font size"])
 
     epd = epd2in13_V4.EPD()
     epd.Clear()
@@ -116,7 +116,7 @@ def update(songimformation:dict, status:str):
     epd.init()
 
     refreshes += 1
-    if refreshes >= SETTINGS["DISPLAY"]["full refresh counter"]:
+    if refreshes >= SETTINGS["display"]["full refresh counter"]:
         epd.display(epd.getbuffer(image))
         refreshes = 0
     else:

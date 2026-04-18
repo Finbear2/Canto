@@ -1,0 +1,23 @@
+{
+    "general": {
+        "name": "Carlos",
+        "version": 1,
+        "testing": true
+    },
+    "server": {
+        "shared secret": "Fish",
+        "server url": "http://127.0.0.1:5000"
+    },
+    "identification": {
+        "inbetween time": 60,
+        "sync inbetween time": 5,
+        "noise threshold": 3000,
+        "sample rate": 44100,
+        "sample size": 20
+    },
+    "display": {
+        "connected": false,
+        "full refresh counter": 3,
+        "font size": 9
+    }
+}

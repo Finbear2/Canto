@@ -9,13 +9,13 @@ async def identify(path:str = "temp.wav", raw:bool = False):
         data = f.read()
 
     headers = {
-        "key": SETTINGS["GENERAL"]["shared secret"],
+        "key": SETTINGS["server"]["shared secret"],
         "Content-Type": "application/octet-stream"
     }
 
     async with aiohttp.ClientSession() as session:
         async with session.post(
-            f"{SETTINGS['GENERAL']['server url']}/identify",
+            f"{SETTINGS['server']['server url']}/identify",
             data=data,
             headers=headers
         ) as resp:

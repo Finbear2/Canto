@@ -8,7 +8,6 @@ coverPath = os.path.join(baseDir, "resources", "cover.png")
 
 def getAlbumCover(artist, song):
     print("\nGetting album cover from Deezer API")
-    displayManager.update(asyncio.run(sql.get(6)), "Cover")
     response = requests.get(f"https://api.deezer.com/search?q={urllib.parse.quote(artist + ' ' + song)}").json()
 
     data = response["data"][0]

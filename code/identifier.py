@@ -16,17 +16,17 @@ lastSong = {}
 songPlaying = False
 
 # Settings
-sampleRate = SETTINGS["IDENTIFIACTION"]["sample rate"]
-sampleSize = SETTINGS["IDENTIFIACTION"]["sample size"]
+sampleRate = SETTINGS["identification"]["sample rate"]
+sampleSize = SETTINGS["identification"]["sample size"]
 
 baseDir = os.path.dirname(os.path.abspath(__file__))
 offlinePath = os.path.join(baseDir, "offline")
 
-def sync(sz:int = sampleSize, sr:int = sampleRate, path:str = "CHANGEME"):
+async def sync(sz:int = sampleSize, sr:int = sampleRate, path:str = "CHANGEME"):
     global lastSong
     global songPlaying
 
-    data =asyncio.run(identify(path=path))
+    data = await identify(path=path)
     os.remove(path)
 
     if data:
@@ -57,7 +57,7 @@ def sync(sz:int = sampleSize, sr:int = sampleRate, path:str = "CHANGEME"):
         lastSong = {}
         return None
 
-def record(sz:int = sampleSize, sr:int = sampleRate, internet:bool = True):
+async def record(sz:int = sampleSize, sr:int = sampleRate, internet:bool = True):
     global lastSong
     global songPlaying
 
@@ -65,7 +65,8 @@ def record(sz:int = sampleSize, sr:int = sampleRate, internet:bool = True):
     print("\nRecording...")
     
     if internet:
-        displayManager.update(asyncio.run(sql.get(6)), "Listening")
+        songs = await sql.get(6)
+        displayManager.update(songs, "Listening")
 
     audioData = sounddevice.rec(
         frames=int(sz*sr),
@@ -80,7 +81,7 @@ def record(sz:int = sampleSize, sr:int = sampleRate, internet:bool = True):
 
     _, data = scipy.io.wavfile.read("temp.wav")
     print(numpy.abs(data).mean())
-    if numpy.abs(data).mean() < SETTINGS["IDENTIFIACTION"]["noise threshold"]:
+    if numpy.abs(data).mean() < SETTINGS["identification"]["noise threshold"]:
         print("Clip too quiet, skipping!")
         songPlaying = False
         lastSong = {}
@@ -88,9 +89,9 @@ def record(sz:int = sampleSize, sr:int = sampleRate, internet:bool = True):
 
     if internet:
 
-        # --- IDENTIFY ---#
-        displayManager.update(asyncio.run(sql.get(6)), "Identifying")
-        data = asyncio.run(identify())
+        # --- IDENTIFY ---
+        displayManager.update(songs, "Identifying")
+        data = await identify()
 
         os.remove("temp.wav")
 
@@ -105,7 +106,8 @@ def record(sz:int = sampleSize, sr:int = sampleRate, internet:bool = True):
             Link: {data["link"]["spotify"]}
             """)
             if len(lastSong) > 0:
-                if lastSong["title"] == data["title"]:
+                song = await sql.get(1)
+                if lastSong["title"] == data["title"] and song[0]["title"] == data["title"]:
                     print("Song already identified!")
                     songPlaying = True
                     return None
