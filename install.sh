@@ -15,7 +15,6 @@ if [ ! -d "Canto" ]; then
 fi
 
 cd Canto
-git pull
 
 python3 setup.py
 
